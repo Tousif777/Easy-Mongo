@@ -23,14 +23,14 @@ A simple and powerful MongoDB wrapper for Node.js that makes working with MongoD
 ## Installation
 
 ```bash
-npm install easy-mongo
+npm install mongoose-maestro
 ```
 
 ## Quick Start
 
 ```javascript
 const mongoose = require('mongoose');
-const EasyMongo = require('easy-mongo');
+const EasyMongo = require('mongoose-maestro');
 
 // Define your mongoose schema
 const userSchema = new mongoose.Schema({
@@ -329,8 +329,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## Support
 
-- 📫 Report issues on our [Issue Tracker](https://github.com/yourusername/easy-mongo/issues)
-- 💬 Get help in our [Discussions](https://github.com/yourusername/easy-mongo/discussions)
+- 📫 Report issues on our [Issue Tracker](https://github.com/tousif777/Easy-Mongo/issues)
+- 💬 Get help in our [Discussions](https://github.com/tousif777/Easy-Mongo/discussions)
 
 ## Changelog
 
