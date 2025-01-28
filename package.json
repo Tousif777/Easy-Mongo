@@ -1,7 +1,7 @@
 {
   "name": "mongoose-maestro",
-  "version": "1.1.3",
-  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze",
+  "version": "1.1.4",
+  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze with built-in performance monitoring",
   "main": "dist/index.js",
   "files": [
     "dist",
@@ -31,7 +31,11 @@
     "database-tools",
     "mongoose-utils",
     "mongodb-wrapper",
-    "db-manager"
+    "db-manager",
+    "performance-monitoring",
+    "metrics",
+    "database-monitoring",
+    "stats"
   ],
   "author": {
     "name": "Md.Tousif",

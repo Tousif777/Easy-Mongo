@@ -1,4 +1,4 @@
-const { performanceMonitor } = require('../monitoring/performance');
+const PerformanceMonitor = require('../monitoring/performanceMonitor');
 const { rateLimiter } = require('../monitoring/rateLimiter');
 
 class BaseMongoClient {
@@ -26,25 +26,43 @@ class BaseMongoClient {
     if (this.options.enableRateLimit) {
       this.limiter = rateLimiter(this.options.rateLimit);
     }
+    if (this.options.enablePerformanceMonitoring) {
+      this.performanceMonitor = new PerformanceMonitor();
+    }
   }
 
-  startMonitoring(operationName) {
-    if (!this.options.enablePerformanceMonitoring) return () => {};
-    return performanceMonitor.start(operationName);
+  startMonitoring(operationType) {
+    if (!this.options.enablePerformanceMonitoring) return { end: () => {} };
+    
+    const startTime = Date.now();
+    return {
+      end: () => {
+        const duration = Date.now() - startTime;
+        this.performanceMonitor.trackOperation(operationType, duration);
+        this.performanceMonitor.trackQuery(duration);
+      }
+    };
   }
 
   getPerformanceStats() {
-    if (!this.options.enablePerformanceMonitoring) return {};
-    return performanceMonitor.getStats();
+    if (!this.options.enablePerformanceMonitoring) {
+      throw new Error('Performance monitoring is not enabled');
+    }
+    return this.performanceMonitor.getStats();
   }
 
-  async _executeWithMonitoring(operationName, callback) {
-    const end = this.startMonitoring(operationName);
+  async _executeWithMonitoring(operationType, callback) {
+    const monitor = this.startMonitoring(operationType);
     try {
       const result = await callback();
       return result;
+    } catch (error) {
+      if (this.options.enablePerformanceMonitoring) {
+        this.performanceMonitor.trackError(error);
+      }
+      throw error;
     } finally {
-      end();
+      monitor.end();
     }
   }
 
