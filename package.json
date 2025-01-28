@@ -34,18 +34,18 @@
     "db-manager"
   ],
   "author": {
-    "name": "MongoDB Maestro Team",
-    "url": "https://github.com/mongoose-maestro"
+    "name": "Md.Tousif",
+    "url": "https://github.com/tousif777"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mongoose-maestro/mongoose-maestro.git"
+    "url": "git+https://github.com/tousif777/mongoose-maestro.git"
   },
   "bugs": {
-    "url": "https://github.com/mongoose-maestro/mongoose-maestro/issues"
+    "url": "https://github.com/tousif777/mongoose-maestro/issues"
   },
-  "homepage": "https://github.com/mongoose-maestro/mongoose-maestro#readme",
+  "homepage": "https://github.com/tousif777/mongoose-maestro#readme",
   "dependencies": {
     "mongoose": "^7.0.0",
     "redis": "^4.0.0",
