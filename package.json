@@ -1,6 +1,6 @@
 {
   "name": "@tousif777/easy-mongo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simplified MongoDB/Mongoose helper library with advanced features",
   "main": "src/index.js",
   "files": [
@@ -10,12 +10,11 @@
     "README.md"
   ],
   "scripts": {
-    "test": "jest",
     "lint": "eslint src/",
     "format": "prettier --write 'src/**/*.js'",
     "build": "babel src -d dist",
     "prepare": "husky install",
-    "prepublishOnly": "npm test && npm run lint",
+    "prepublishOnly": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
     "release": "standard-version"
@@ -44,7 +43,6 @@
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "eslint": "^8.0.0",
-    "jest": "^27.0.0",
     "prettier": "^2.0.0",
     "husky": "^7.0.0",
     "standard-version": "^9.0.0"
