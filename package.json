@@ -1,0 +1,37 @@
+{
+  "name": "easy-mongo",
+  "version": "1.0.0",
+  "description": "A simplified MongoDB/Mongoose helper library with advanced features",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/",
+    "format": "prettier --write 'src/**/*.js'",
+    "build": "babel src -d dist",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "mongodb",
+    "mongoose",
+    "database",
+    "orm"
+  ],
+  "author": "Md.Tousif",
+  "license": "MIT",
+  "dependencies": {
+    "mongoose": "^7.6.3",
+    "joi": "^17.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^27.0.0",
+    "prettier": "^2.0.0",
+    "husky": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

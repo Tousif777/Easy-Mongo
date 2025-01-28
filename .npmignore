@@ -1,0 +1,9 @@
+.git/
+.gitignore
+.eslintrc.json
+coverage/
+tests/
+*.test.js
+.env
+.DS_Store
+*.log 
