@@ -1,5 +1,5 @@
 {
-  "name": "easy-mongo",
+  "name": "@tousif777/easy-mongo",
   "version": "1.0.0",
   "description": "A simplified MongoDB/Mongoose helper library with advanced features",
   "main": "src/index.js",
