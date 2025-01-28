@@ -1,8 +1,8 @@
 {
   "name": "easy-mongo-orm",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze with built-in caching, search, pagination, performance monitoring, and more",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "files": [
     "dist",
     "README.md",
