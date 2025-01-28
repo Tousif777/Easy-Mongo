@@ -1,20 +1,52 @@
 # Development files
-.git/
-.github/
+.git
 .gitignore
-.eslintrc.json
+.eslintrc
 .prettierrc
-.husky/
-coverage/
+.babelrc
+jest.config.js
 tests/
 __tests__/
-*.test.js
-.env
-.DS_Store
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+logs
 *.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.test
+.env.local
+
+# Documentation source
+docs/
+examples/
+CONTRIBUTING.md
+
+# Source maps
+*.map
+
+# Build process
+.travis.yml
+.circleci/
+.github/
 
 # Documentation
-CONTRIBUTING.md
 CODE_OF_CONDUCT.md
 CHANGELOG.md
 

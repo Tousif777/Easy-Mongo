@@ -1,0 +1,14 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "node": "14"
+      }
+    }]
+  ],
+  "ignore": [
+    "**/*.test.js",
+    "**/__tests__",
+    "**/node_modules"
+  ]
+} 
