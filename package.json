@@ -1,7 +1,7 @@
 {
   "name": "mongoose-maestro",
-  "version": "1.1.4",
-  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze with built-in performance monitoring",
+  "version": "1.2.0",
+  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze with built-in performance monitoring, model management, and pagination",
   "main": "dist/index.js",
   "files": [
     "dist",

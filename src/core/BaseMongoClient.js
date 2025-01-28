@@ -1,5 +1,7 @@
 const PerformanceMonitor = require('../monitoring/performanceMonitor');
 const { rateLimiter } = require('../monitoring/rateLimiter');
+const ModelManager = require('./ModelManager');
+const PaginationManager = require('./PaginationManager');
 
 class BaseMongoClient {
   constructor(model, options = {}) {
@@ -18,7 +20,8 @@ class BaseMongoClient {
       cacheTTL: options.cacheTTL || 3600,
       enableRateLimit: options.enableRateLimit || false,
       rateLimit: options.rateLimit || { windowMs: 15 * 60 * 1000, max: 100 },
-      enablePerformanceMonitoring: options.enablePerformanceMonitoring || false
+      enablePerformanceMonitoring: options.enablePerformanceMonitoring || false,
+      pagination: options.pagination || { limit: 10, sort: { _id: -1 } }
     };
   }
 
@@ -28,6 +31,32 @@ class BaseMongoClient {
     }
     if (this.options.enablePerformanceMonitoring) {
       this.performanceMonitor = new PerformanceMonitor();
+    }
+    this.paginationManager = new PaginationManager(this.Model, this.options.pagination);
+  }
+
+  // Model Management Methods
+  static createModel(schema, modelName, options = {}) {
+    const modelManager = new ModelManager(schema, options);
+    return modelManager.createModel(modelName);
+  }
+
+  // Pagination Methods
+  async paginate(query = {}, options = {}) {
+    const monitor = this.startMonitoring('read');
+    try {
+      return await this.paginationManager.paginate(query, options);
+    } finally {
+      monitor.end();
+    }
+  }
+
+  async paginateAggregate(pipeline = [], options = {}) {
+    const monitor = this.startMonitoring('read');
+    try {
+      return await this.paginationManager.paginateAggregate(pipeline, options);
+    } finally {
+      monitor.end();
     }
   }
 

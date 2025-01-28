@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2024-02-20
+
+### Added
+- Model management system with schema creation and validation
+- Advanced pagination support for regular queries and aggregations
+- Model methods and statics management
+- Virtual fields support
+- Custom validators and middleware support
+- Plugin system for models
+- Pagination metadata (total pages, next/prev page, etc.)
+- Support for sorting, field selection, and population in pagination
+
+### Changed
+- Enhanced BaseMongoClient with model management capabilities
+- Improved query builder with pagination support
+- Better integration with performance monitoring
+
 ## [1.1.4] - 2024-02-20
 
 ### Added
