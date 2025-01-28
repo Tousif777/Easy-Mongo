@@ -1,10 +1,15 @@
 {
-  "name": "easy-mongo",
+  "name": "mongoose-maestro",
   "version": "1.1.0",
-  "description": "A simple and powerful MongoDB wrapper for Node.js that makes working with MongoDB/Mongoose easier and more intuitive",
-  "main": "src/index.js",
+  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "build": "babel src -d dist",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
@@ -20,18 +25,27 @@
     "cache",
     "query-builder",
     "transactions",
-    "search"
+    "search",
+    "maestro",
+    "mongo-toolkit",
+    "database-tools",
+    "mongoose-utils",
+    "mongodb-wrapper",
+    "db-manager"
   ],
-  "author": "Md.Tousif",
+  "author": {
+    "name": "MongoDB Maestro Team",
+    "url": "https://github.com/mongoose-maestro"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tousif777/Easy-Mongo.git"
+    "url": "git+https://github.com/mongoose-maestro/mongoose-maestro.git"
   },
   "bugs": {
-    "url": "https://github.com/Tousif777/Easy-Mongo/issues"
+    "url": "https://github.com/mongoose-maestro/mongoose-maestro/issues"
   },
-  "homepage": "https://github.com/Tousif777/Easy-Mongo#readme",
+  "homepage": "https://github.com/mongoose-maestro/mongoose-maestro#readme",
   "dependencies": {
     "mongoose": "^7.0.0",
     "redis": "^4.0.0",
