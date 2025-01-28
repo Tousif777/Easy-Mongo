@@ -1,6 +1,6 @@
 {
   "name": "mongoose-maestro",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze",
   "main": "dist/index.js",
   "files": [
@@ -34,18 +34,18 @@
     "db-manager"
   ],
   "author": {
-    "name": "MongoDB Maestro Team",
-    "url": "https://github.com/mongoose-maestro"
+    "name": "Md.Tousif",
+    "url": "https://github.com/tousif777"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mongoose-maestro/mongoose-maestro.git"
+    "url": "git+https://github.com/tousif777/Easy-Mongo.git"
   },
   "bugs": {
-    "url": "https://github.com/mongoose-maestro/mongoose-maestro/issues"
+    "url": "https://github.com/tousif777/Easy-Mongo/issues"
   },
-  "homepage": "https://github.com/mongoose-maestro/mongoose-maestro#readme",
+  "homepage": "https://github.com/tousif777/Easy-Mongo#readme",
   "dependencies": {
     "mongoose": "^7.0.0",
     "redis": "^4.0.0",
