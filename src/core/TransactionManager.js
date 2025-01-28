@@ -1,30 +1,35 @@
-const BaseMongoClient = require('./BaseMongoClient');
-const transactions = require('../operations/transactions');
+const mongoose = require('mongoose');
 
-class TransactionManager extends BaseMongoClient {
+class TransactionManager {
   constructor(model, options = {}) {
-    super(model, options);
+    this.Model = model;
   }
 
   async withTransaction(callback) {
-    return this._executeWithMonitoring('transaction', () => 
-      transactions.withTransaction(callback)
-    );
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const result = await callback(session);
+      await session.commitTransaction();
+      return result;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   async bulkWrite(operations, options = {}) {
-    return this._executeWithMonitoring('bulkWrite', () => 
-      transactions.bulkWrite(this.Model, operations, options)
-    );
+    return this.Model.bulkWrite(operations, options);
   }
 
   async aggregate(pipeline) {
-    return this._executeWithMonitoring('aggregate', () => 
-      this.Model.aggregate(pipeline)
-    );
+    return this.Model.aggregate(pipeline);
   }
 
-  watch(pipeline = [], options = {}) {
+  watch(pipeline, options) {
     return this.Model.watch(pipeline, options);
   }
 }

@@ -1,117 +1,85 @@
 class PaginationManager {
     constructor(model, options = {}) {
-        this.model = model;
+        this.Model = model;
         this.defaultOptions = {
             page: 1,
             limit: 10,
-            sort: { _id: -1 },
+            sort: { createdAt: -1 },
             lean: true,
             ...options
         };
     }
 
     async paginate(query = {}, options = {}) {
-        const paginateOptions = { ...this.defaultOptions, ...options };
-        const { page, limit, sort, lean, select, populate } = paginateOptions;
-
-        const skip = (page - 1) * limit;
+        const { page = this.defaultOptions.page, limit = this.defaultOptions.limit, sort = this.defaultOptions.sort } = options;
         
         try {
-            // Build the base query
-            let queryBuilder = this.model.find(query);
-
-            // Apply sorting
-            if (sort) {
-                queryBuilder = queryBuilder.sort(sort);
-            }
-
-            // Apply field selection
-            if (select) {
-                queryBuilder = queryBuilder.select(select);
-            }
-
-            // Apply population
-            if (populate) {
-                if (Array.isArray(populate)) {
-                    populate.forEach(field => {
-                        queryBuilder = queryBuilder.populate(field);
-                    });
-                } else {
-                    queryBuilder = queryBuilder.populate(populate);
-                }
-            }
-
-            // Execute queries in parallel
-            const [results, total] = await Promise.all([
-                queryBuilder
+            const skip = (page - 1) * limit;
+            const [data, total] = await Promise.all([
+                this.Model.find(query)
+                    .sort(sort)
                     .skip(skip)
-                    .limit(limit)
-                    .lean(lean)
-                    .exec(),
-                this.model.countDocuments(query)
+                    .limit(limit),
+                this.Model.countDocuments(query)
             ]);
 
-            // Calculate pagination metadata
-            const totalPages = Math.ceil(total / limit);
-            const hasNextPage = page < totalPages;
-            const hasPrevPage = page > 1;
-
             return {
-                docs: results,
-                total,
-                limit,
-                page,
-                totalPages,
-                hasNextPage,
-                hasPrevPage,
-                nextPage: hasNextPage ? page + 1 : null,
-                prevPage: hasPrevPage ? page - 1 : null,
-                pagingCounter: (page - 1) * limit + 1
+                data,
+                pagination: {
+                    total,
+                    page,
+                    limit,
+                    pages: Math.ceil(total / limit),
+                    hasNextPage: page * limit < total,
+                    hasPrevPage: page > 1
+                }
             };
         } catch (error) {
-            throw new Error(`Pagination failed: ${error.message}`);
+            console.error('Pagination failed:', error);
+            throw error;
         }
     }
 
     async paginateAggregate(pipeline = [], options = {}) {
-        const paginateOptions = { ...this.defaultOptions, ...options };
-        const { page, limit } = paginateOptions;
-        const skip = (page - 1) * limit;
-
+        const { page = this.defaultOptions.page, limit = this.defaultOptions.limit } = options;
+        
         try {
+            const skip = (page - 1) * limit;
+
             // Add pagination stages to the pipeline
-            const countPipeline = [...pipeline, { $count: 'total' }];
-            const dataPipeline = [
+            const paginatedPipeline = [
                 ...pipeline,
                 { $skip: skip },
                 { $limit: limit }
             ];
 
-            // Execute queries in parallel
-            const [countResult, results] = await Promise.all([
-                this.model.aggregate(countPipeline),
-                this.model.aggregate(dataPipeline)
+            // Get total count using the original pipeline
+            const countPipeline = [
+                ...pipeline,
+                { $count: 'total' }
+            ];
+
+            const [data, countResult] = await Promise.all([
+                this.Model.aggregate(paginatedPipeline),
+                this.Model.aggregate(countPipeline)
             ]);
 
             const total = countResult[0]?.total || 0;
-            const totalPages = Math.ceil(total / limit);
-            const hasNextPage = page < totalPages;
-            const hasPrevPage = page > 1;
 
             return {
-                docs: results,
-                total,
-                limit,
-                page,
-                totalPages,
-                hasNextPage,
-                hasPrevPage,
-                nextPage: hasNextPage ? page + 1 : null,
-                prevPage: hasPrevPage ? page - 1 : null,
-                pagingCounter: (page - 1) * limit + 1
+                data,
+                pagination: {
+                    total,
+                    page,
+                    limit,
+                    pages: Math.ceil(total / limit),
+                    hasNextPage: page * limit < total,
+                    hasPrevPage: page > 1
+                }
             };
         } catch (error) {
-            throw new Error(`Aggregate pagination failed: ${error.message}`);
+            console.error('Aggregate pagination failed:', error);
+            throw error;
         }
     }
 }

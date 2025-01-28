@@ -1,30 +1,42 @@
 class RateLimiter {
-  constructor(maxRequests = 1000, timeWindow = 60000) {
+  constructor(options = {}) {
+    this.windowMs = options.windowMs || 15 * 60 * 1000; // 15 minutes by default
+    this.max = options.max || 100; // 100 requests per windowMs by default
     this.requests = new Map();
-    this.maxRequests = maxRequests;
-    this.timeWindow = timeWindow;
   }
 
-  async checkLimit(key) {
+  check() {
     const now = Date.now();
-    const windowStart = now - this.timeWindow;
-    
-    if (!this.requests.has(key)) {
-      this.requests.set(key, [now]);
-      return true;
+    this.cleanup(now);
+
+    const clientRequests = this.requests.get('client') || [];
+    if (clientRequests.length >= this.max) {
+      throw new Error('Rate limit exceeded');
     }
 
-    const requests = this.requests.get(key).filter(time => time > windowStart);
-    if (requests.length >= this.maxRequests) {
-      return false;
-    }
-
-    requests.push(now);
-    this.requests.set(key, requests);
+    clientRequests.push(now);
+    this.requests.set('client', clientRequests);
     return true;
+  }
+
+  cleanup(now) {
+    const windowStart = now - this.windowMs;
+    for (const [client, timestamps] of this.requests.entries()) {
+      const validTimestamps = timestamps.filter(timestamp => timestamp > windowStart);
+      if (validTimestamps.length === 0) {
+        this.requests.delete(client);
+      } else {
+        this.requests.set(client, validTimestamps);
+      }
+    }
   }
 }
 
+const createRateLimiter = (options) => {
+  const limiter = new RateLimiter(options);
+  return () => limiter.check();
+};
+
 module.exports = {
-  rateLimiter: new RateLimiter()
+  rateLimiter: createRateLimiter
 }; 

@@ -6,46 +6,52 @@ class SearchManager extends BaseMongoClient {
     super(model, options);
   }
 
-  async search(options = {}) {
-    return this._executeWithMonitoring('search', () => {
-      const { text, fields, filter, sort, limit, skip } = options;
-      return search.searchWithText(this.Model, {
-        searchText: text,
-        fields,
-        filter,
-        sort,
-        limit,
-        skip
-      });
-    });
+  async search({ text, fields = [] }) {
+    try {
+      const searchQuery = {};
+      if (fields && fields.length > 0) {
+        searchQuery.$text = { $search: text };
+        return this.Model.find(searchQuery).sort({ score: { $meta: 'textScore' } });
+      } else {
+        searchQuery.searchableText = { $regex: text, $options: 'i' };
+        return this.Model.find(searchQuery);
+      }
+    } catch (error) {
+      console.error('Text search failed:', error);
+      throw error;
+    }
   }
 
-  async searchNearby(options = {}) {
-    return this._executeWithMonitoring('searchNearby', () => {
-      const { field, coordinates, maxDistance, minDistance, filter, limit, skip } = options;
-      return search.searchNear(this.Model, {
-        field,
-        coordinates,
-        maxDistance,
-        minDistance,
-        filter,
-        limit,
-        skip
+  async searchNearby({ coordinates, maxDistance = 10000 }) {
+    try {
+      return this.Model.find({
+        'location.coordinates': {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: coordinates
+            },
+            $maxDistance: maxDistance
+          }
+        }
       });
-    });
+    } catch (error) {
+      console.error('Geospatial search failed:', error);
+      throw error;
+    }
   }
 
-  async fuzzySearch(options = {}) {
-    return this._executeWithMonitoring('fuzzySearch', () => {
-      const { fields, searchTerm, filter, limit, skip } = options;
-      return search.fuzzySearch(this.Model, {
-        fields,
-        searchTerm,
-        filter,
-        limit,
-        skip
-      });
-    });
+  async fuzzySearch({ field, query }) {
+    try {
+      // Create a case-insensitive regex pattern with flexible matching
+      const regex = new RegExp(query.split('').join('.*'), 'i');
+      const searchQuery = {};
+      searchQuery[field] = regex;
+      return this.Model.find(searchQuery);
+    } catch (error) {
+      console.error('Fuzzy search failed:', error);
+      throw error;
+    }
   }
 }
 

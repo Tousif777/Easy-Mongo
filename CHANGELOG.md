@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.5] - 2024-02-20
+
+### Fixed
+- Fixed PopulationManager implementation
+- Fixed TransactionManager implementation
+- Removed all inheritance from manager classes
+- Improved direct model operations
+- Enhanced error handling in all managers
+- Better transaction handling with sessions
+
+## [1.2.4] - 2024-02-20
+
+### Fixed
+- Fixed inheritance issues in manager classes
+- Improved class structure and organization
+- Enhanced error handling in SearchManager
+- Better performance monitoring integration
+- Fixed circular dependencies
+
+## [1.2.3] - 2024-02-20
+
+### Fixed
+- Fixed rate limiter class implementation and integration
+- Improved rate limiting checks in CrudManager
+- Added rate limiting to all CRUD operations
+- Better error handling for rate limiting
+- Fixed BaseMongoClient initialization
+
+## [1.2.2] - 2024-02-20
+
+### Fixed
+- Fixed rate limiter implementation
+- Improved rate limiter integration with CrudManager
+- Better error handling for rate limiting
+- Updated rate limiter class with better memory management
+
+## [1.2.1] - 2024-02-20
+
+### Changed
+- Refactored BaseMongoClient to handle model and connection management internally
+- Improved initialization process with unified options object
+- Enhanced error handling for model and connection setup
+- Better integration between different managers
+
+### Fixed
+- Fixed BaseMongoClient constructor issue
+- Fixed model creation and connection handling
+- Improved error messages for better debugging
+- Fixed performance monitoring integration
+
 ## [1.2.0] - 2024-02-20
 
 ### Added

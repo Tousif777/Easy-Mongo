@@ -61,7 +61,9 @@ class BaseMongoClient {
   }
 
   startMonitoring(operationType) {
-    if (!this.options.enablePerformanceMonitoring) return { end: () => {} };
+    if (!this.options.enablePerformanceMonitoring) {
+      return { end: () => {} };
+    }
     
     const startTime = Date.now();
     return {
@@ -81,6 +83,10 @@ class BaseMongoClient {
   }
 
   async _executeWithMonitoring(operationType, callback) {
+    if (this.options.enableRateLimit) {
+      this.limiter();
+    }
+
     const monitor = this.startMonitoring(operationType);
     try {
       const result = await callback();

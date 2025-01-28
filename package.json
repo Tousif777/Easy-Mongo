@@ -1,15 +1,15 @@
 {
-  "name": "mongoose-maestro",
-  "version": "1.2.0",
-  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze with built-in performance monitoring, model management, and pagination",
-  "main": "dist/index.js",
+  "name": "easy-mongo-orm",
+  "version": "1.0.0",
+  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze with built-in caching, search, pagination, performance monitoring, and more",
+  "main": "src/index.js",
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "test": "node test-all-features.js",
     "build": "babel src -d dist",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
@@ -26,16 +26,11 @@
     "query-builder",
     "transactions",
     "search",
-    "maestro",
-    "mongo-toolkit",
-    "database-tools",
-    "mongoose-utils",
-    "mongodb-wrapper",
-    "db-manager",
+    "geospatial",
+    "fuzzy-search",
+    "pagination",
     "performance-monitoring",
-    "metrics",
-    "database-monitoring",
-    "stats"
+    "rate-limiting"
   ],
   "author": {
     "name": "Md.Tousif",
@@ -51,10 +46,11 @@
   },
   "homepage": "https://github.com/tousif777/Easy-Mongo#readme",
   "dependencies": {
-    "mongoose": "^7.0.0",
-    "redis": "^4.0.0",
+    "express": "^4.21.2",
     "ioredis": "^5.0.0",
-    "joi": "^17.11.0"
+    "joi": "^17.11.0",
+    "mongoose": "^7.6.3",
+    "redis": "^4.0.0"
   },
   "peerDependencies": {
     "mongoose": ">=6.0.0"

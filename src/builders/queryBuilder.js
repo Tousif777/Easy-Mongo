@@ -1,49 +1,51 @@
 class QueryBuilder {
-  constructor(Model) {
-    this.Model = Model;
-    this.query = this.Model.find();
+  constructor(model) {
+    this.Model = model;
+    this.query = {};
+    this.options = {};
   }
 
   where(conditions) {
-    this.query = this.query.where(conditions);
+    this.query = { ...this.query, ...conditions };
     return this;
   }
 
   select(fields) {
-    this.query = this.query.select(fields);
+    this.options.select = fields;
     return this;
   }
 
   sort(sortBy) {
-    this.query = this.query.sort(sortBy);
+    this.options.sort = sortBy;
     return this;
   }
 
-  limit(num) {
-    this.query = this.query.limit(num);
+  skip(skip) {
+    this.options.skip = skip;
     return this;
   }
 
-  skip(num) {
-    this.query = this.query.skip(num);
+  limit(limit) {
+    this.options.limit = limit;
     return this;
   }
 
   async execute() {
-    return await this.query.exec();
+    let query = this.Model.find(this.query);
+
+    if (this.options.select) query = query.select(this.options.select);
+    if (this.options.sort) query = query.sort(this.options.sort);
+    if (this.options.skip) query = query.skip(this.options.skip);
+    if (this.options.limit) query = query.limit(this.options.limit);
+
+    return query.exec();
   }
 }
 
 class LargeDatasetQueryBuilder extends QueryBuilder {
-  constructor(Model) {
-    super(Model);
-    this.useStream = false;
+  constructor(model) {
+    super(model);
     this.batchSize = 1000;
-  }
-
-  stream() {
-    this.useStream = true;
-    return this;
   }
 
   setBatchSize(size) {
@@ -51,11 +53,20 @@ class LargeDatasetQueryBuilder extends QueryBuilder {
     return this;
   }
 
-  async execute() {
-    if (this.useStream) {
-      return this.Model.find(this.query).cursor({ batchSize: this.batchSize });
+  stream() {
+    let query = this.Model.find(this.query);
+
+    if (this.options.select) query = query.select(this.options.select);
+    if (this.options.sort) query = query.sort(this.options.sort);
+
+    return query.cursor({ batchSize: this.batchSize });
+  }
+
+  async *[Symbol.asyncIterator]() {
+    const cursor = this.stream();
+    for await (const doc of cursor) {
+      yield doc;
     }
-    return super.execute();
   }
 }
 

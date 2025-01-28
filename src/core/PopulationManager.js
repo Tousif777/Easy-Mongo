@@ -1,27 +1,32 @@
 const BaseMongoClient = require('./BaseMongoClient');
 const population = require('../utils/population');
 
-class PopulationManager extends BaseMongoClient {
+class PopulationManager {
   constructor(model, options = {}) {
-    super(model, options);
+    this.Model = model;
   }
 
-  async populate(doc, paths = [], maxDepth = 3) {
-    return this._executeWithMonitoring('populate', () => 
-      population.populateDeep(doc, { paths, maxDepth })
-    );
+  async populate(doc, paths, maxDepth = 2) {
+    if (!doc) return null;
+    
+    const populateOptions = Array.isArray(paths) ? paths : [paths];
+    const options = populateOptions.map(path => ({
+      path,
+      options: { maxDepth }
+    }));
+
+    return this.Model.populate(doc, options);
   }
 
-  async populateVirtuals(doc, virtualFields = []) {
-    return this._executeWithMonitoring('populateVirtuals', () => 
-      population.populateVirtuals(doc, virtualFields)
-    );
+  async populateVirtuals(doc, virtualFields) {
+    if (!doc) return null;
+    
+    const fields = Array.isArray(virtualFields) ? virtualFields : [virtualFields];
+    return this.Model.populate(doc, fields);
   }
 
   async estimatedCount() {
-    return this._executeWithMonitoring('estimatedCount', () => 
-      this.Model.estimatedDocumentCount()
-    );
+    return this.Model.estimatedDocumentCount();
   }
 }
 
