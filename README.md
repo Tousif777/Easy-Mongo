@@ -14,7 +14,14 @@ A simplified MongoDB/Mongoose helper library with advanced features that makes w
 ## Installation
 
 ```bash
+# Using npm
 npm install easy-mongo
+
+# Using yarn
+yarn add easy-mongo
+
+# Using pnpm
+pnpm add easy-mongo
 ```
 
 ## Quick Start
@@ -34,7 +41,7 @@ const user = await createDocument('users', {
 
 ## Documentation
 
-For detailed documentation, please visit our [Wiki](https://github.com/yourusername/easy-mongo/wiki).
+For detailed documentation, please visit our [Wiki](https://github.com/Tousif777/Easy-Mongo/wiki).
 
 ### Basic Usage
 

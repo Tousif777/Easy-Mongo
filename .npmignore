@@ -1,9 +1,22 @@
+# Development files
 .git/
+.github/
 .gitignore
 .eslintrc.json
+.prettierrc
+.husky/
 coverage/
 tests/
+__tests__/
 *.test.js
 .env
 .DS_Store
-*.log 
+*.log
+
+# Documentation
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+CHANGELOG.md
+
+# Source control
+.git* 

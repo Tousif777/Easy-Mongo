@@ -44,7 +44,7 @@ an individual is officially representing the community in public spaces.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the project maintainers responsible for enforcement at
-[INSERT CONTACT METHOD].
+[https://github.com/Tousif777/Easy-Mongo/issues](https://github.com/Tousif777/Easy-Mongo/issues).
 
 ## Attribution
 
