@@ -5,6 +5,11 @@ const TransactionManager = require('./core/TransactionManager');
 const PopulationManager = require('./core/PopulationManager');
 const PaginationManager = require('./core/PaginationManager');
 const { QueryBuilder, LargeDatasetQueryBuilder } = require('./builders/queryBuilder');
+const SoftDeleteManager = require('./operations/softDelete');
+const VersioningManager = require('./operations/versioning');
+const DataExportManager = require('./utils/dataExport');
+const SchemaValidator = require('./utils/schemaValidator');
+const MigrationManager = require('./utils/dataMigration');
 
 class EasyMongo {
   constructor(config) {
@@ -26,6 +31,27 @@ class EasyMongo {
     this.transaction = new TransactionManager(this.Model, features);
     this.population = new PopulationManager(this.Model, features);
     this.paginationManager = new PaginationManager(this.Model, features);
+    
+    // Initialize new feature managers
+    if (features.enableSoftDelete) {
+      this.softDelete = new SoftDeleteManager(this.Model, features.softDelete || {});
+    }
+    
+    if (features.enableVersioning) {
+      this.versioning = new VersioningManager(this.Model, features.versioning || {});
+    }
+    
+    if (features.enableDataExport) {
+      this.dataExport = new DataExportManager(this.Model, features.dataExport || {});
+    }
+    
+    if (features.enableSchemaValidator) {
+      this.schemaValidator = new SchemaValidator(features.schemaValidator || {});
+    }
+    
+    if (features.enableMigration) {
+      this.migrationManager = new MigrationManager(features.migration || {});
+    }
     
     // Store connection config
     this.connectionConfig = connection;
@@ -59,11 +85,27 @@ class EasyMongo {
 
   // Proxy CRUD methods
   async create(data) {
-    return this.crud.create(data);
+    const result = await this.crud.create(data);
+    
+    // Track creation in versioning if enabled
+    if (this.versioning) {
+      await this.versioning.trackCreation(result);
+    }
+    
+    return result;
   }
 
   async createMany(dataArray) {
-    return this.crud.createMany(dataArray);
+    const results = await this.crud.createMany(dataArray);
+    
+    // Track creation in versioning if enabled
+    if (this.versioning) {
+      for (const doc of results) {
+        await this.versioning.trackCreation(doc);
+      }
+    }
+    
+    return results;
   }
 
   async findById(id, options) {
@@ -79,19 +121,82 @@ class EasyMongo {
   }
 
   async update(filter, data) {
-    return this.crud.update(filter, data);
+    // Get documents before update if versioning is enabled
+    let oldDocs = [];
+    if (this.versioning) {
+      oldDocs = await this.Model.find(filter);
+    }
+    
+    const result = await this.crud.update(filter, data);
+    
+    // Track updates in versioning if enabled
+    if (this.versioning && oldDocs.length > 0) {
+      const updatedDocs = await this.Model.find(filter);
+      
+      for (let i = 0; i < oldDocs.length; i++) {
+        const oldDoc = oldDocs[i];
+        const updatedDoc = updatedDocs.find(doc => doc._id.toString() === oldDoc._id.toString());
+        
+        if (updatedDoc) {
+          await this.versioning.trackUpdate(oldDoc, updatedDoc);
+        }
+      }
+    }
+    
+    return result;
   }
 
   async updateById(id, data) {
-    return this.crud.updateById(id, data);
+    // Get document before update if versioning is enabled
+    let oldDoc = null;
+    if (this.versioning) {
+      oldDoc = await this.Model.findById(id);
+    }
+    
+    const result = await this.crud.updateById(id, data);
+    
+    // Track update in versioning if enabled
+    if (this.versioning && oldDoc && result) {
+      await this.versioning.trackUpdate(oldDoc, result);
+    }
+    
+    return result;
   }
 
   async delete(filter) {
-    return this.crud.delete(filter);
+    // Get documents before delete if versioning is enabled
+    let docsToDelete = [];
+    if (this.versioning) {
+      docsToDelete = await this.Model.find(filter);
+    }
+    
+    const result = await this.crud.delete(filter);
+    
+    // Track deletions in versioning if enabled
+    if (this.versioning && docsToDelete.length > 0) {
+      for (const doc of docsToDelete) {
+        await this.versioning.trackDeletion(doc);
+      }
+    }
+    
+    return result;
   }
 
   async deleteById(id) {
-    return this.crud.deleteById(id);
+    // Get document before delete if versioning is enabled
+    let docToDelete = null;
+    if (this.versioning) {
+      docToDelete = await this.Model.findById(id);
+    }
+    
+    const result = await this.crud.deleteById(id);
+    
+    // Track deletion in versioning if enabled
+    if (this.versioning && docToDelete) {
+      await this.versioning.trackDeletion(docToDelete);
+    }
+    
+    return result;
   }
 
   // Proxy Search methods
@@ -144,6 +249,158 @@ class EasyMongo {
 
   async paginateAggregate(pipeline, options) {
     return this.paginationManager.paginateAggregate(pipeline, options);
+  }
+
+  // Soft Delete methods (if enabled)
+  async softDeleteById(id) {
+    if (!this.softDelete) {
+      throw new Error('Soft delete is not enabled');
+    }
+    return this.softDelete.softDeleteById(id);
+  }
+
+  async softDelete(filter) {
+    if (!this.softDelete) {
+      throw new Error('Soft delete is not enabled');
+    }
+    return this.softDelete.softDelete(filter);
+  }
+
+  async restoreById(id) {
+    if (!this.softDelete) {
+      throw new Error('Soft delete is not enabled');
+    }
+    return this.softDelete.restoreById(id);
+  }
+
+  async restore(filter) {
+    if (!this.softDelete) {
+      throw new Error('Soft delete is not enabled');
+    }
+    return this.softDelete.restore(filter);
+  }
+
+  async findWithDeleted(filter, options) {
+    if (!this.softDelete) {
+      throw new Error('Soft delete is not enabled');
+    }
+    return this.softDelete.findWithDeleted(filter, options);
+  }
+
+  async findOnlyDeleted(filter, options) {
+    if (!this.softDelete) {
+      throw new Error('Soft delete is not enabled');
+    }
+    return this.softDelete.findOnlyDeleted(filter, options);
+  }
+
+  // Versioning methods (if enabled)
+  async getDocumentHistory(documentId, options) {
+    if (!this.versioning) {
+      throw new Error('Versioning is not enabled');
+    }
+    return this.versioning.getHistory(documentId, options);
+  }
+
+  async getDocumentVersion(documentId, version) {
+    if (!this.versioning) {
+      throw new Error('Versioning is not enabled');
+    }
+    return this.versioning.getVersion(documentId, version);
+  }
+
+  async revertToVersion(documentId, version, options) {
+    if (!this.versioning) {
+      throw new Error('Versioning is not enabled');
+    }
+    return this.versioning.revertToVersion(documentId, version, options);
+  }
+
+  // Data Export methods (if enabled)
+  async exportToJson(filter, filePath, options) {
+    if (!this.dataExport) {
+      throw new Error('Data export is not enabled');
+    }
+    return this.dataExport.exportToJson(filter, filePath, options);
+  }
+
+  async exportToCsv(filter, filePath, options) {
+    if (!this.dataExport) {
+      throw new Error('Data export is not enabled');
+    }
+    return this.dataExport.exportToCsv(filter, filePath, options);
+  }
+
+  async exportLargeDatasetToJson(filter, filePath, options) {
+    if (!this.dataExport) {
+      throw new Error('Data export is not enabled');
+    }
+    return this.dataExport.exportLargeDatasetToJson(filter, filePath, options);
+  }
+
+  async importFromJson(filePath, options) {
+    if (!this.dataExport) {
+      throw new Error('Data export is not enabled');
+    }
+    return this.dataExport.importFromJson(filePath, options);
+  }
+
+  async importFromCsv(filePath, options) {
+    if (!this.dataExport) {
+      throw new Error('Data export is not enabled');
+    }
+    return this.dataExport.importFromCsv(filePath, options);
+  }
+
+  // Schema Validation methods (if enabled)
+  defineValidationSchema(schema) {
+    if (!this.schemaValidator) {
+      throw new Error('Schema validation is not enabled');
+    }
+    return this.schemaValidator.defineSchema(this.Model.modelName, schema);
+  }
+
+  validate(data, options) {
+    if (!this.schemaValidator) {
+      throw new Error('Schema validation is not enabled');
+    }
+    return this.schemaValidator.validate(this.Model.modelName, data, options);
+  }
+
+  async validateAsync(data, options) {
+    if (!this.schemaValidator) {
+      throw new Error('Schema validation is not enabled');
+    }
+    return this.schemaValidator.validateAsync(this.Model.modelName, data, options);
+  }
+
+  // Migration methods (if enabled)
+  registerMigration(migration) {
+    if (!this.migrationManager) {
+      throw new Error('Migration manager is not enabled');
+    }
+    return this.migrationManager.registerMigration(migration);
+  }
+
+  async applyMigrations(options) {
+    if (!this.migrationManager) {
+      throw new Error('Migration manager is not enabled');
+    }
+    return this.migrationManager.applyMigrations(options);
+  }
+
+  async rollbackLastMigration() {
+    if (!this.migrationManager) {
+      throw new Error('Migration manager is not enabled');
+    }
+    return this.migrationManager.rollbackLastMigration();
+  }
+
+  async getMigrationStatus() {
+    if (!this.migrationManager) {
+      throw new Error('Migration manager is not enabled');
+    }
+    return this.migrationManager.getMigrationStatus();
   }
 
   // Cache Management

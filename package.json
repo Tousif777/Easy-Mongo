@@ -1,7 +1,7 @@
 {
   "name": "easy-mongo-orm",
-  "version": "1.0.2",
-  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze with built-in caching, search, pagination, performance monitoring, and more",
+  "version": "1.1.0",
+  "description": "A powerful and elegant MongoDB/Mongoose toolkit that makes database operations a breeze with built-in caching, search, pagination, performance monitoring, soft delete, versioning, data export/import, schema validation, and migration utilities",
   "main": "dist/index.js",
   "files": [
     "dist",
@@ -30,7 +30,14 @@
     "fuzzy-search",
     "pagination",
     "performance-monitoring",
-    "rate-limiting"
+    "rate-limiting",
+    "soft-delete",
+    "versioning",
+    "audit-trail",
+    "data-export",
+    "data-import",
+    "schema-validation",
+    "data-migration"
   ],
   "author": {
     "name": "Md.Tousif",
