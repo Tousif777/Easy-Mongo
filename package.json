@@ -46,7 +46,6 @@
   },
   "homepage": "https://github.com/tousif777/Easy-Mongo#readme",
   "dependencies": {
-    "express": "^4.21.2",
     "ioredis": "^5.0.0",
     "joi": "^17.11.0",
     "mongoose": "^7.6.3",
